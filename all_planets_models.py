@@ -5,7 +5,7 @@ from astropy import constants as c
 import matplotlib.pyplot as plt
 import math as mth
 
-def allplanets(location,M_star,R_star,Z,alpha,vfrag,t):
+def allplanets(location, M_star, R_star, Z, alpha, vfrag, t):
     """
     Method:
         2-fold process: 

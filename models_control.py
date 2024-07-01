@@ -1,27 +1,26 @@
-#all libraries
 import numpy as np
 from astropy import constants as c
 import matplotlib.pyplot as plt
-from all_planets_2 import allplanets
 import pandas as pd
 from multiprocessing import Pool, freeze_support
+from all_planets_models import allplanets
 import time
 
 start=time.time()
 
-# some useful constants in cgs
+# Some useful constants in cgs
 year = 365.25*24*3600 # in seconds
-au = c.au.cgs.value
+au = c.au.cgs.value # value of 'au' in cm
 MS = c.M_sun.cgs.value # mass of the sun in cgs
 ME = c.M_earth.cgs.value # mass of the earth in cgs
 k_b = c.k_B.cgs.value # boltzmann const
 m_p = c.m_p.cgs.value # mass of proton
 Grav = c.G.cgs.value # gravitational const
 
-ZS=0.012 # metallicity of the sun
-RS=c.R_sun.cgs.value # Radius of sun in cm
+ZS = 0.012 # metallicity of the sun
+RS = c.R_sun.cgs.value # Radius of sun in cm
 
-# creating grids
+# Creating grids
 Nr = 1000 # number of grid points      
 rhop = 1.25 # internal density of dust grains 
 Rout = 1000.*au
@@ -29,69 +28,68 @@ Nt = 1000   # how many points on the time grid?
 endtime = 1.e8*year
 timegrid = np.logspace(np.log10(year),np.log10(endtime),Nt) # starts from 1 year and ends at endtime defined above, goes for Nt number of points
 
-# getting the data
-df=pd.read_csv("with_errors2.csv"
-               ,index_col=False)
-df2 = df.drop_duplicates(subset=["Planet Name"], keep='first')
+# Getting the data
+df = pd.read_csv("with_errors2.csv",index_col = False)
+df2 = df.drop_duplicates(subset = ["Planet Name"], keep = 'first')
 col_names=df2.columns.values.tolist()
 for i in col_names:
-    df2.dropna(subset=[i], inplace=True)
+    df2.dropna(subset = [i], inplace = True)
 
-MStar_list=df2["mass of star (solar masses)"].values.tolist() # in terms of solar masses
-total=len(MStar_list)
-location_array=df2["semi major axis (au)"].values.tolist() # in terms of au
-Rstar_array=df2["radius of star (solar radius)"].values.tolist()
-Metallicity=df2["metallicity = log(k)*metallicity of sun"].values.tolist() # Making a list of all themetallicity values
+# Making values from CSV into lists
+MStar_list = df2["mass of star (solar masses)"].values.tolist() # in terms of solar masses
+location_array = df2["semi major axis (au)"].values.tolist() # in terms of au
+Rstar_array = df2["radius of star (solar radius)"].values.tolist()
+Metallicity = df2["metallicity = log(k)*metallicity of sun"].values.tolist() # Making a list of all themetallicity values
+total = len(MStar_list)
 
-# CALLING THE FUNCTION
-A=[10**-4] # alpha values
-V=[400] # vfrag values
-q=len(location_array) # number of planets being considered from the list
-times=[100,1000,10000,100000]
+# Values of the variables being defined - input variables
+A = [10**-4] # alpha values
+V = [400] # vfrag values
+q = total # number of planets being considered from the list
+times = [0,100,1000,10000,100000]
 
-tot=q*len(A)*len(V)
-Metal=np.zeros((len(A),len(V),q)) # list of metallicities of planets that got isolated
-Location=np.zeros((len(A),len(V),q))
-Mstars=np.zeros((len(A),len(V),q))
+# Output variables - ones that hold the final output
+tot = len(times)
+Metal = np.zeros((tot, q)) # list of metallicities of planets that got isolated
+Location = np.zeros((tot, q)) # list of locations of planets that got isolated
+Mstars = np.zeros((tot, q)) # list of stellar masses of planets that got isolated
 
-Final=np.zeros((len(A),len(V),q))
-isol=np.zeros((len(A),len(V)))
-isolp=np.zeros((len(A),len(V)))
+# No. of planets that got isolated
+Final = np.zeros((tot, q)) 
+isol = np.zeros((tot))
+isolp = np.zeros((tot))
 
 def main():
-    args=[]
-
-    # making the arguments
-    for i in range(0,len(times)):
+    args = []
+    # making the arguments to send into starmaps
+    for i in range(0,tot):
         for k in range(0,q):
-            t=(location_array[k]*au,MStar_list[k]*MS,Rstar_array[k]*RS,Metallicity[k],A[0],V[0],times[i])
+            t = (location_array[k]*au, MStar_list[k]*MS, Rstar_array[k]*RS, Metallicity[k], A[0], V[0], times[i])
             args.append(t)
 
+    # initialising star maps
     with Pool() as pool:
-        
-        L=pool.starmap(allplanets,args) # starmap is the keyword is the type of map being used
+        L = pool.starmap(allplanets,args) # function call
         for i in range(0,tot):
-            
-            iso=L[i][0]
-            Z=L[i][1]
-            Loc=L[i][2]
-            M_s=L[i][3]            
+            for j in range(0,q):
+                iso = L[i][0]
+                Z = L[i][1]
+                Loc = L[i][2]
+                M_s = L[i][3]            
 
-            if iso!=0:
-                Final[i]=1
-                Metal[i]=Z
-                Location[i]=Loc
-                Mstars[i]=M_s/MS
+                if iso != 0:
+                    Final[i,j] = 1
+                    Metal[i,j] = Z
+                    Location[i,j] = Loc
+                    Mstars[i, j] = M_s/MS
+            
+        for i in range(0,tot): # the first 
+            K = (sum(Final[i]))
+            isol[i] = K
+            isolp[i] = K*100/q # saving percentages in isol
         
-        for i in range(0,len(A)): # the first 
-            for j in range(0,len(V)):
-                for k in range(0,q):
-                    K=(sum(Final[i,j]))
-                    isol[i][j]=K
-                    isolp[i][j]=K*100/q # saving percentages in isol
-                
         print(isol)
-        print(total)
+        print(q)
 
         np.save("Model_NPYs/Metallicity_full",Metal)
         np.save("Model_NPYs/isolp_full",isolp)
@@ -101,13 +99,13 @@ def main():
         np.save("Model_NPYs/Mstars_full",Mstars)
 
 # To print how much time the code takes to run
-if __name__=="__main__": 
+if __name__ == "__main__": 
     freeze_support()
     main()
-    end=time.time()
+    end = time.time()
 
     if end-start<60:
-        print(end-start)
+        print(end-start, "seconds")
     else:
-        print((end-start)/60)
+        print((end-start)/60, "minutes")
 
