@@ -18,8 +18,8 @@ def allplanets(location,M_star,R_star,Z,alpha,vfrag,p,q,r_):
     - This will be the change in time taken -- giving us the position of T2 on the timegrid.
 
     """
-    epsilon=[]
-    iso=0
+    epsilon = []
+    iso = 0
     # some useful constants in cgs
     year = 365.25*24*3600 # in seconds
     au = c.au.cgs.value
@@ -28,15 +28,15 @@ def allplanets(location,M_star,R_star,Z,alpha,vfrag,p,q,r_):
     k_b = c.k_B.cgs.value # boltzmann const
     m_p = c.m_p.cgs.value # mass of proton
     Grav = c.G.cgs.value # gravitational const
-    ZS=0.012 # metallicity of the sun
+    ZS = 0.012 # metallicity of the sun
     Nr = 1000 # number of grid points      
     rhop = 1.25 # internal density of dust grains 
     Rout = 1000.*au
     
     # variables needed in code
     Z0 = (10**Z)*ZS # solids-to-gas ratio 
-    mdisk=0.1*M_star # assuming that disk mass is 10% of the star mass
-    Rc=30*au 
+    mdisk = 0.1*M_star # assuming that disk mass is 10% of the star mass
+    Rc = 30*au 
 
     Rin = 1.5*R_star # inner radius of disk is 1au and outer radius is 1000 a (HUH)
     rgrid = np.logspace(np.log10(Rin),np.log10(Rout),Nr)   
@@ -55,7 +55,7 @@ def allplanets(location,M_star,R_star,Z,alpha,vfrag,p,q,r_):
     it = timegrid.searchsorted((3.e6) * year)
 
     # finding stokes number and flux numbers
-    stokes,flux_values=pebble_predictor(rgrid=rgrid,tgrid=timegrid,Mstar=M_star,SigmaGas=SigmaGas,T=T,SigmaDust=SigmaDust,alpha=alpha,vfrag=vfrag,rhop=rhop)
+    stokes,flux_values = pebble_predictor(rgrid=rgrid,tgrid=timegrid,Mstar=M_star,SigmaGas=SigmaGas,T=T,SigmaDust=SigmaDust,alpha=alpha,vfrag=vfrag,rhop=rhop)
 
     H_g = cs/OmegaK # gas scale height
     rhog = SigmaGas / (np.sqrt(2.*np.pi)*H_g) # gas midplane density
@@ -81,7 +81,7 @@ def allplanets(location,M_star,R_star,Z,alpha,vfrag,p,q,r_):
 
     it2 = timegrid.searchsorted(abs(T1)) # position at which T1 exists
 
-    totmass=[]
+    totmass = []
     for i in range(0,it2+1):
         totmass.append(M_t/ME)
     
@@ -89,8 +89,8 @@ def allplanets(location,M_star,R_star,Z,alpha,vfrag,p,q,r_):
     for i in range(it2, 1000):
         m = totmass[-1]*ME # At the first iteration this is the value of the transition mass, after that it increases with time
         r = ((3*m)/(4*mth.pi*3))**(1/3)     
-        dt=(timegrid[i]-timegrid[i-1])
-        dm= mth.pi * OmegaK[ir] * SigmaDust[ir] * r**2 * dt
+        dt = (timegrid[i]-timegrid[i-1])
+        dm = mth.pi * OmegaK[ir] * SigmaDust[ir] * r**2 * dt
         totmass.append(((totmass[-1]*ME)+dm)/ME)
         if totmass[-1] >= Classical_iso/ME:
             totmass.append(Classical_iso/ME)
@@ -106,24 +106,24 @@ def allplanets(location,M_star,R_star,Z,alpha,vfrag,p,q,r_):
         totmass.append(0)
     totmass_arr = np.asarray(totmass)
 
-    M_iso=40*ME*(M_star/MS)*((H_g[ir]/(0.05*location))**3)
-    hgas=H_g[ir]/rgrid[ir]
+    M_iso = 40*ME*(M_star/MS)*((H_g[ir]/(0.05*location))**3)
+    hgas = H_g[ir]/rgrid[ir]
 
     for i in range(it3,1000): # through the entire timegrid
-        dt=(timegrid[i]-timegrid[i-1]) # time difference
-        R=((((3/(4*mth.pi))*totmass_arr[i-1]*ME/3)**(1/3)))/location # radius of planet in terms of au; density of the planet as it grows is
-        QP=totmass_arr[i-1]*ME/MS # QP ratio
+        dt = (timegrid[i]-timegrid[i-1]) # time difference
+        R = ((((3/(4*mth.pi))*totmass_arr[i-1]*ME/3)**(1/3)))/location # radius of planet in terms of au; density of the planet as it grows is
+        QP = totmass_arr[i-1]*ME/MS # QP ratio
 
-        eps=OL18_new.epsilon_general (tau=stokes[i,ir], qp=QP, eta=eta, hgas=hgas, alphaz=alpha, Rp=R)
+        eps = OL18_new.epsilon_general (tau = stokes[i,ir], qp = QP, eta = eta, hgas = hgas, alphaz = alpha, Rp = R)
         epsilon.append(eps)
-        totmass_arr[i]=totmass_arr[i-1]+((flux_values[i,ir]*eps*dt)/ME) # this becomes the array of mass as a function of time    
+        totmass_arr[i] = totmass_arr[i-1]+((flux_values[i,ir]*eps*dt)/ME) # this becomes the array of mass as a function of time    
         
-        if totmass_arr[i]>=M_iso/ME:
-            totmass_arr[i]=M_iso/ME
+        if totmass_arr[i] >= M_iso/ME:
+            totmass_arr[i] = M_iso/ME
 
-    if totmass_arr[it]>=M_iso/ME:
-        iso+=1
+    if totmass_arr[it] >= M_iso/ME:
+        iso += 1
         
-    Q=[p,q,r_,iso,Z0,location/au,M_star]
+    Q = [p, q, r_, iso, Z0, location/au, M_star]
     
     return Q

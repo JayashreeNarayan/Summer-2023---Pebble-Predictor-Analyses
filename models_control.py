@@ -1,12 +1,13 @@
+# all libraries
 import numpy as np
 from astropy import constants as c
 import matplotlib.pyplot as plt
+from all_planets_models import allplanets
 import pandas as pd
 from multiprocessing import Pool, freeze_support
-from all_planets_models import allplanets
 import time
 
-start=time.time()
+start = time.time()
 
 # Some useful constants in cgs
 year = 365.25*24*3600 # in seconds
@@ -45,45 +46,52 @@ total = len(MStar_list)
 # Values of the variables being defined - input variables
 A = [10**-4] # alpha values
 V = [400] # vfrag values
+times = [0,100*year,1000*year,10000*year,100000*year]
+len_times = len(times)
 q = total # number of planets being considered from the list
-times = [0,100,1000,10000,100000]
 
 # Output variables - ones that hold the final output
-tot = len(times)
-Metal = np.zeros((tot, q)) # list of metallicities of planets that got isolated
-Location = np.zeros((tot, q)) # list of locations of planets that got isolated
-Mstars = np.zeros((tot, q)) # list of stellar masses of planets that got isolated
+tot = q*len_times
+Metal = np.zeros((len_times,q)) # list of metallicities of planets that got isolated
+Location = np.zeros((len_times,q))
+Mstars = np.zeros((len_times,q))
 
 # No. of planets that got isolated
-Final = np.zeros((tot, q)) 
-isol = np.zeros((tot))
-isolp = np.zeros((tot))
+Final = np.zeros((len_times,q))
+isol = np.zeros((len_times))
+isolp = np.zeros((len_times))
 
 def main():
     args = []
+
     # making the arguments to send into starmaps
-    for i in range(0,tot):
-        for k in range(0,q):
-            t = (location_array[k]*au, MStar_list[k]*MS, Rstar_array[k]*RS, Metallicity[k], A[0], V[0], times[i])
-            args.append(t)
+    for i in range(0,len(A)):
+        for j in range(0,len(V)):
+            for k in range(0,q):
+                for l in range(0, len_times):
+                    t = (location_array[k]*au, MStar_list[k]*MS, Rstar_array[k]*RS, Metallicity[k], A[i], V[j], i, j, k, times[l], l)
+                    args.append(t)
 
-    # initialising star maps
     with Pool() as pool:
-        L = pool.starmap(allplanets,args) # function call
-        for i in range(0,tot):
-            for j in range(0,q):
-                iso = L[i][0]
-                Z = L[i][1]
-                Loc = L[i][2]
-                M_s = L[i][3]            
+        
+        L = pool.starmap(allplanets, args) # function call
+        for i in range(0, tot):
+            p = L[i][0]
+            l = L[i][1]
+            r = L[i][2]
+            iso = L[i][3]
+            Z = L[i][4]
+            Loc = L[i][5]
+            M_s = L[i][6]  
+            T = L[i][7]          
 
-                if iso != 0:
-                    Final[i,j] = 1
-                    Metal[i,j] = Z
-                    Location[i,j] = Loc
-                    Mstars[i, j] = M_s/MS
-            
-        for i in range(0,tot): # the first 
+            if iso != 0:
+                Final[T][r] = 1
+                Metal[T][r] = Z
+                Location[T][r] = Loc
+                Mstars[T][r] = M_s/MS
+        
+        for i in range(0,len_times): # the first 
             K = (sum(Final[i]))
             isol[i] = K
             isolp[i] = K*100/q # saving percentages in isol
