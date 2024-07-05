@@ -46,7 +46,7 @@ total = len(MStar_list)
 # Values of the variables being defined - input variables
 A = [10**-5,10**-4,10**-3,10**-2] # alpha values
 V = np.linspace(100,1000,10) # vfrag values
-q = 10 # number of planets being considered from the list
+q = total # number of planets being considered from the list
 
 # Output variables - ones that hold the final output
 tot = q*len(A)*len(V)
@@ -95,7 +95,7 @@ def main():
                     isolp[i][j] = K*100/q # saving percentages in isol
                 
         print(isol)
-        print(total)
+        print(q)
 
         np.save("NPYs/Metallicity_full",Metal)
         np.save("NPYs/isolp_full",isolp)
