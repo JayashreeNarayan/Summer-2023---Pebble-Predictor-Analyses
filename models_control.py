@@ -46,7 +46,7 @@ total = len(MStar_list)
 # Values of the variables being defined - input variables
 A = [10**-4] # alpha values
 V = [400] # vfrag values
-times = [0,100*year,1000*year,10000*year,100000*year]
+times = [100*year,1000*year,10000*year,100000*year]
 len_times = len(times)
 q = total # number of planets being considered from the list
 
