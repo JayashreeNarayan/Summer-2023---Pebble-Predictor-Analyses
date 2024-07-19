@@ -53,6 +53,8 @@ tot = q*len(A)*len(V)
 Metal = np.zeros((len(A),len(V),q)) # list of metallicities of planets that got isolated
 Location = np.zeros((len(A),len(V),q))
 Mstars = np.zeros((len(A),len(V),q))
+T2 = np.zeros((len(A),len(V),q)) # time at which planetary core is planted
+core_mass = np.zeros((len(A),len(V),q)) # planetary core masses
 
 # No. of planets that got isolated
 Final = np.zeros((len(A),len(V),q))
@@ -71,7 +73,7 @@ def main():
 
     with Pool() as pool:
         
-        L = pool.starmap(allplanets,args) # function call
+        L = pool.starmap(allplanets,args) # function call - runs for all 862 planets * 4 alphas * 4 vfrags
         for i in range(0,tot):
             p = L[i][0]
             l = L[i][1]
@@ -79,17 +81,22 @@ def main():
             iso = L[i][3]
             Z = L[i][4]
             Loc = L[i][5]
-            M_s = L[i][6]            
+            M_s = L[i][6]     
+            t2 = L[i][7]       
+            m = L[i][8]
 
             if iso != 0:
                 Final[p][l][r] = 1
                 Metal[p][l][r] = Z
                 Location[p][l][r] = Loc
                 Mstars[p][l][r] = M_s/MS
+            else: 
+                T2[p][l][r] = t2
+                core_mass[p][l][r] = m
         
         for i in range(0,len(A)): # the first 
             for j in range(0,len(V)):
-                for k in range(0,q):
+                for k in range(0,q):                    
                     K = (sum(Final[i,j]))
                     isol[i][j] = K
                     isolp[i][j] = K*100/q # saving percentages in isol
@@ -103,6 +110,8 @@ def main():
         np.save("NPYs/isol_full",isol)
         np.save("NPYs/location_full",Location)
         np.save("NPYs/Mstars_full",Mstars)
+        np.save("NPYs/T_2",T2)
+        np.save("NPYs/core_masses",core_mass)
 
 # To print how much time the code takes to run
 if __name__ == "__main__": 
