@@ -9,7 +9,7 @@ import time
 
 start = time.time()
 
-# Some useful constants in cgs
+# Some useful constants in cgsp
 year = 365.25*24*3600 # in seconds
 au = c.au.cgs.value # value of 'au' in cm
 MS = c.M_sun.cgs.value # mass of the sun in cgs
