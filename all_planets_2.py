@@ -48,7 +48,7 @@ def allplanets(location,M_star,R_star,Z,alpha,vfrag,p,q,r_):
 
     # grid building
     Nt = 1000 # how many points on the time grid?
-    endtime = 3.e6*year
+    endtime = 10.e6*year
     timegrid = np.logspace(np.log10(year),np.log10(endtime),Nt) # starts from 1 year and ends at endtime defined above, goes for Nt number of points
 
     ir = rgrid.searchsorted(location)
@@ -118,7 +118,7 @@ def allplanets(location,M_star,R_star,Z,alpha,vfrag,p,q,r_):
         epsilon.append(eps)
         totmass_arr[i] = totmass_arr[i-1]+((flux_values[i,ir]*eps*dt)/ME) # this becomes the array of mass as a function of time    
         
-        if totmass_arr[i] >= M_iso/ME:
+        if totmass_arr[i] >= M_iso/ME: # meaning the planet has reached its isolation mass
             totmass_arr[i] = M_iso/ME
 
     if totmass_arr[it] >= M_iso/ME:

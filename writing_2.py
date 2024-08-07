@@ -85,14 +85,14 @@ def main():
             t2 = L[i][7]       
             m = L[i][8]
 
+            T2[p][l][r] = t2
+            core_mass[p][l][r] = m
+
             if iso != 0:
                 Final[p][l][r] = 1
                 Metal[p][l][r] = Z
                 Location[p][l][r] = Loc
-                Mstars[p][l][r] = M_s/MS
-            else: 
-                T2[p][l][r] = t2
-                core_mass[p][l][r] = m
+                Mstars[p][l][r] = M_s/MS 
         
         for i in range(0,len(A)): # the first 
             for j in range(0,len(V)):
