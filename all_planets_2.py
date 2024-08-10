@@ -124,6 +124,6 @@ def allplanets(location,M_star,R_star,Z,alpha,vfrag,p,q,r_):
     if totmass_arr[it] >= M_iso/ME:
         iso += 1
         
-    Q = [p, q, r_, iso, Z0, location/au, M_star, T2/year, totmass[it3]]
+    Q = [p, q, r_, iso, Z0, location/au, M_star, T2/year, totmass[it3], T1/year]
     
     return Q

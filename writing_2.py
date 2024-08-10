@@ -53,6 +53,7 @@ tot = q*len(A)*len(V)
 Metal = np.zeros((len(A),len(V),q)) # list of metallicities of planets that got isolated
 Location = np.zeros((len(A),len(V),q))
 Mstars = np.zeros((len(A),len(V),q))
+T1= np.zeros((len(A),len(V),q)) # time taken to reach transition mass
 T2 = np.zeros((len(A),len(V),q)) # time at which planetary core is planted
 core_mass = np.zeros((len(A),len(V),q)) # planetary core masses
 
@@ -84,8 +85,10 @@ def main():
             M_s = L[i][6]     
             t2 = L[i][7]       
             m = L[i][8]
+            t1 = L[i][9]
 
             T2[p][l][r] = t2
+            T1[p][l][r] = t1
             core_mass[p][l][r] = m
 
             if iso != 0:
@@ -111,6 +114,7 @@ def main():
         np.save("NPYs/location_full",Location)
         np.save("NPYs/Mstars_full",Mstars)
         np.save("NPYs/T_2",T2)
+        np.save("NPYs/T_1",T1)
         np.save("NPYs/core_masses",core_mass)
 
 # To print how much time the code takes to run
