@@ -48,7 +48,7 @@ def allplanets(location,M_star,R_star,Z,alpha,vfrag,p,q,r_):
 
     # grid building
     Nt = 1000 # how many points on the time grid?
-    endtime = 10.e6*year
+    endtime = 3.e6*year
     timegrid = np.logspace(np.log10(year/100),np.log10(endtime),Nt) # starts from 1 year and ends at endtime defined above, goes for Nt number of points
 
     ir = rgrid.searchsorted(location)
