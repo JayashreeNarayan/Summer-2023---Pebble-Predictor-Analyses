@@ -38,7 +38,7 @@ def allplanets(location,M_star,R_star,Z,alpha,vfrag,p,q,r_):
     mdisk = 0.1*M_star # assuming that disk mass is 10% of the star mass
     Rc = 30*au 
 
-    Rin = 1.5*R_star # inner radius of disk is 1au and outer radius is 1000 a (HUH)
+    Rin = 1.5*R_star # inner radius of disk is 1au and outer radius is 1000 au
     rgrid = np.logspace(np.log10(Rin),np.log10(Rout),Nr)   
     SigmaGas = mdisk / (2.*np.pi*Rc**2.) * (rgrid/Rc)**(-1.) * np.exp(-1.*(rgrid/Rc)) # gas surface density
     SigmaDust = Z0*SigmaGas # dust surface density
@@ -49,7 +49,7 @@ def allplanets(location,M_star,R_star,Z,alpha,vfrag,p,q,r_):
     # grid building
     Nt = 1000 # how many points on the time grid?
     endtime = 3.e6*year
-    timegrid = np.logspace(np.log10(year/100),np.log10(endtime),Nt) # starts from 1 year and ends at endtime defined above, goes for Nt number of points
+    timegrid = np.logspace(np.log10(year/100),np.log10(endtime),Nt) # starts from 0.01 year and ends at 3Myr, goes for Nt number of points
 
     ir = rgrid.searchsorted(location)
     it = timegrid.searchsorted((3.e6) * year)
